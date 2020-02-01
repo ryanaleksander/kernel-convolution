@@ -11,8 +11,8 @@ The code is written using the following environment. There isn't a strict versio
 # Tutorials
 ## Creating a kernel convolution layer
 ```python
-from kernels import *
-from kernel_conv import KernelConv2d
+from kernel_conv.kernels import *
+from kernel_conv.conv import KernelConv2d
 
 # Create a kernel to use for your convolution layers
 # There are currently 3 to choose from
@@ -26,8 +26,8 @@ kernel_conv2d = KernelConv2d(3, 64, (3,3), kernel=gaussian_kernel)
 ```
 ## Converting existing networks
 ```python
-from kernels import *
-from kernel_conv import kernel_wrapper
+from kernel_convs.kernels import *
+from kernel_conv.conv import kernel_wrapper
 
 # Let's use ResNet50 as an example
 import torchvision

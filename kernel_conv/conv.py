@@ -1,5 +1,4 @@
 import torch
-import kernel
 import torch.nn.functional as F
 
 class KernelConv2d(torch.nn.Conv2d):
