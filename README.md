@@ -4,13 +4,13 @@ This repository is a PyTorch implementation of Kervolutional Neural Network (CVP
 
 This overview will be a very brief introduction to the concept of "Kernel Convolution" (or "kervolution" as the authors'd like to call it) so that you can understand it better without having to read the paper in full. However, it is still recommended that you should read the paper in its entirety to understand the concept fully.
 ## What is "Kernel Convolution"?
-As we know, a neural network is a collection layers connected by a variety of activation functions to form an end-to-end sequence of computation. The goal is to learn a function or a statistical model with great complexity that can produce a prediction for every unseen input with a satisfactory level of statistical error.
+As we know, a neural network is a collection of layers connected by a variety of activation functions to form an end-to-end sequence of computation. The goal is to learn a function or a statistical model with great complexity that can produce a prediction for every unseen input with a satisfactory level of statistical error.
 
 To achieve that goal, every activation function in the network must be non-linear, as a combination of multiple linear functions is simply another linear function. As we know, linear functions have a very limited discriminating power.
 
-In a Convolutional Neural Network (CNN), however, convolution layers can only learn linear features from the inputs as convolution (or cross-correlation) itself is a linear operation. So the idea is to counteract the inherently linear nature of the convolution operation with a non-linear function. However, non-linear functions come with a non-linear computational complexity growth ('exponential' mostly and unfortunately)
+In a Convolutional Neural Network (CNN), however, convolution layers can only learn linear features from the inputs as convolution (or cross-correlation) itself is a linear operation. So the idea is to counteract the inherently linear nature of the convolution operation with a non-linear function. However, non-linear functions also come with a non-linear computational complexity growth ('exponential' mostly and unfortunately)
 ## The Kernel Trick
-To counteract the aforementioned exponential growth of the computational complexity, we will utilize something called "the kernel trick". This techniques allow us to calculate the result of a combination of two non-linear computations without having to do the computations ourselves. Thus, we practically achieve a linear-time complexity for a non-linear computation. The "kernel trick" is widely used in SVM to project data points into higer dimensions for easy linear separation without compromising computational cost.
+To counteract the aforementioned exponential growth of the computational complexity, we will utilize something called "the kernel trick". This technique allow us to calculate the result of a combination of two non-linear computations without having to do the computations ourselves. Thus, we practically achieve a linear-time complexity for a non-linear computation. The "kernel trick" is widely used in SVM to project data points into higer dimensions for easy linear separation without compromising computational cost.
 
 I won't go into details about the kernel trick, but I will briefly introduce the kernels that are implemented in this repository:
 
@@ -83,7 +83,7 @@ Also the implementation is very barebone, so feel free to tinker with the config
 # FAQ
 **Q: My networks still run slower with kernel convolution. How come?**
 
-A: The kernel trick only helps make the computational complextiy growth to be not exponential i.e. not explode as the data grow. It doesn't help reduce the base complexity and the kernel functions are mostly more costly to compute than a linear function used in a traditional convolution operation. O(1000n) = O(n), but 1000n > n.
+A: The kernel trick only helps make the computational complextiy growth to be not exponential i.e. not explode as the data grow. It doesn't help reduce the base complexity and the kernel functions are mostly more costly to compute. O(1000n) = O(n), but 1000n > n.
 
 **Q: Should I use this to replace traditional convolution layers completely?**
 
