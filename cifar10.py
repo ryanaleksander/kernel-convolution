@@ -1,10 +1,13 @@
 import argparse
 import torch
+import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 from kernel_conv.conv import kernel_wrapper
 from kernel_conv.kernels import *
 from tqdm import tqdm
+
+torch.autograd.set_detect_anomaly(True)
 
 def main():
     # Parsing command line args
@@ -25,17 +28,18 @@ def main():
     # Initiating network
     resnet50 = torchvision.models.resnet50()
     resnet50._modules['fc'] = torch.nn.Linear(2048, 10, True)
+    net = resnet50
 
     if args.kernel == 'gaussian':
-        kernel_wrapper(resnet50, GaussianKernel())
+        kernel_wrapper(net, GaussianKernel())
     elif args.kernel == 'polynomial':
-        kernel_wrapper(resnet50, PolynomialKernel())
+        kernel_wrapper(net, PolynomialKernel())
     elif args.kernel == 'sigmoid':
-        kernel_wrapper(resnet50, SigmoidKernel())
+        kernel_wrapper(net, SigmoidKernel())
     elif args.kernel is not None:
         raise Exception('Invalid kernel')
 
-    resnet50.to(device)
+    net.to(device)
 
     # Loading datasets
     transform = transforms.Compose([
@@ -44,15 +48,13 @@ def main():
     ])
 
     trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
-
-    classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+    testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(resnet50.parameters(), lr=0.001, momentum=0)
+    optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
 
     print('=' * 5 + 'TRAINING' + '=' * 5)
     for epoch in tqdm(range(args.epoch)):
@@ -60,18 +62,19 @@ def main():
         for i, (inputs, labels) in enumerate(trainloader):
             inputs = inputs.to(device)
             labels = labels.to(device)
-            optmizer.zero_grad()
-            outputs = resnet50(inputs)
+            optimizer.zero_grad()
+            outputs = net(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-            running_loss += loss.items()
-        print('Epoch %i complete, loss: %f' % (epoch, running_loss))
+            running_loss += loss.item()
+        print('Epoch %i complete, loss: %f' % (epoch, running_loss / len(trainloader)))
 
     print('=' * 5 + 'TESTING' + '=' * 5)
     correct = 0
     total = 0
     with torch.no_grad():
+        net.eval()
         for (images, labels) in testloader:
             images = images.to(device)
             labels = labels.to(device)
