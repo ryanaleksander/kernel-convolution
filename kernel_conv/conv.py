@@ -16,9 +16,9 @@ class KernelConv2d(torch.nn.Conv2d):
     def forward(self, x):
         x_unf = F.unfold(x, self.kernel_size, self.dilation, self.padding, self.stride).transpose(1, 2)
         h, w = self.__compute_shape(x)
-        out = self.kernel_fn(x_unf, self.weight, None)
-        if self.bias:
-            out += self.bias
+        out = self.kernel_fn(x_unf, self.weight)
+        if self.bias is not None:
+            out = out + self.bias
         return out.view(x.shape[0], self.out_channels, w, h)
 
 
@@ -27,9 +27,10 @@ def kernel_wrapper(module, kernel):
         kernel_wrapper(layer, kernel)
         if isinstance(layer, torch.nn.modules.conv.Conv2d):
             # Create replacement layer
+            bias = layer.bias is not None
             kernel_conv2d = KernelConv2d(
                 layer.in_channels, layer.out_channels, layer.kernel_size, kernel,
-                layer.stride, layer.padding, layer.dilation, layer.groups, layer.bias,
+                layer.stride, layer.padding, layer.dilation, layer.groups, bias,
                 layer.padding_mode
             )
 
